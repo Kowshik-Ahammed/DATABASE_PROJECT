@@ -69,7 +69,10 @@ insert into driver(driver_id,d_name,d_phone_number) values (4,'Abir','+880193351
 insert into driver(driver_id,d_name,d_phone_number) values (5,'Simon','+8801833517056');
 insert into driver(driver_id,d_name,d_phone_number) values (6,'Rifat','+8801633517005');
 insert into driver(driver_id,d_name,d_phone_number) values (7,'Mishu','+8801633517005');
-insert into driver(driver_id,d_name,d_phone_number) values (8,'Rishad','+8801533517005');
+insert into driver(driver_id,d_name,d_phone_number) values (8,'Rikhad','+8801533517005');
+insert into driver(driver_id,d_name,d_phone_number) values (9,'Risahad','+8801553517005');
+insert into driver(driver_id,d_name,d_phone_number) values (10,'Risalat','+8801933517005');
+insert into driver(driver_id,d_name,d_phone_number) values (11,'Rashed','+8801503517005');
 
 
 
@@ -82,6 +85,7 @@ insert into payment (pay_id,payment_date,amount,cust_id) values (5,'26/3/22',200
 insert into payment (pay_id,payment_date,amount,cust_id) values (6,'26/3/22',5000,6);
 insert into payment (pay_id,payment_date,amount,cust_id) values (7,'26/3/22',10000,3);
 insert into payment (pay_id,payment_date,amount,cust_id) values (8,'26/3/22',7000,9);
+insert into payment (pay_id,payment_date,amount,cust_id) values (4,'26/3/22',2000,8);
 insert into payment (pay_id,payment_date,amount,cust_id) values (9,'26/3/22',2000,8);
 
 --inserting values for the car table
@@ -101,6 +105,7 @@ insert into car(car_id,car_status,booking_id,price,cust_id,driver_id) values(8,'
 
 insert into car_pay (car_id,pay_id) values(1,1);
 insert into car_pay (car_id,pay_id) values(1,2);
+INSERT into car_pay (car_id, pay_id) values(2,1);
 insert into car_pay (car_id,pay_id) values(2,3);
 insert into car_pay (car_id,pay_id) values(3,4);
 insert into car_pay (car_id,pay_id) values(4,3);
@@ -279,3 +284,336 @@ select driver_id,d_name from driver;
 select cust_id,cust_name from customer
 minus
 select driver_id,d_name from driver;
+
+
+
+-- Join operations :
+
+-- Join
+select d.cust_id, d.cust_name, p.pay_id from customer d join
+payment p on d.cust_id = p.cust_id;
+
+
+
+-- Natural Join
+select cust_id, cust_name, pay_id from customer natural join payment;
+
+
+
+-- Cross Join
+select d.cust_id, d.cust_name, p.pay_id,p.amount from customer d cross join payment p;
+
+
+
+-- Inner Join
+select d.cust_id, d.cust_name, p.pay_id,p.amount from customer d inner join
+payment p on d.cust_id = p.cust_id;
+
+
+
+-- Left Outer Join
+select d.cust_id, d.cust_name, p.pay_id,p.amount from customer d left outer join
+payment p on d.cust_id = p.cust_id;
+
+
+
+-- --RIGHT Outer Join
+select d.cust_id, d.cust_name, p.pay_id, p.amount from customer d right outer join
+payment p on d.cust_id = p.cust_id;
+
+
+
+-- --FULL Outer Join
+select d.cust_id, d.cust_name, p.pay_id, p.amount from customer d full outer join
+payment p on d.cust_id = p.cust_id;
+
+
+-- Self Join
+select a.cust_id from customer a minus
+select a.cust_id from customer a join customer b on a.cust_id < b.cust_id;
+
+
+
+
+
+
+
+
+--PL_SQL WORKING AND FUNCTIONALITY
+
+
+
+
+-- PL/SQL Procedure for displaying a Single Row
+
+set serveroutput on
+
+declare
+pl_cust_id  customer.cust_id%type;
+pl_cust_name customer.cust_name%type;
+
+begin
+
+select cust_id, cust_name  into pl_cust_id , pl_cust_name from customer
+where cust_id = 3;
+
+dbms_output.put_line('customer_Id : ' || pl_cust_id || ', Customer_Name : ' || pl_cust_name );
+
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+-- PL/SQL Procedure for displaying Multiple Rows using Cursor
+
+set serveroutput on
+
+declare
+cursor cust is select cust_id, cust_name, cust_phone_number from customer;
+customer_record cust%rowtype;
+
+begin
+
+open cust;
+loop
+	fetch cust into customer_record;
+	exit when cust%rowcount > 3;
+	dbms_output.put_line('Customer_Id : ' || customer_record.cust_id);
+	dbms_output.put_line('Customer_Name : ' || customer_record.cust_name);
+	dbms_output.put_line('Customer_Name_Phone_no : ' || customer_record.cust_phone_number);
+end loop;
+close cust;
+
+end;
+/
+
+
+
+
+
+
+
+
+
+-- PL/SQL Procedure for getting Customers's Info
+
+set serveroutput on
+
+create or replace procedure get_customer_info is
+c_id customer.cust_id%type := 2;
+c_name customer.cust_name%type;
+c_phone customer.cust_phone_number%type;
+
+begin
+
+select cust_id, cust_name, cust_phone_number into c_id, c_name, c_phone from customer where cust_id = c_id;
+dbms_output.put_line('Customer Id: '||c_id);
+dbms_output.put_line('Customer Name: '||c_name);
+dbms_output.put_line('Customer Phone No: '||c_phone);
+end get_customer_info;
+/
+show errors
+
+
+
+
+begin
+	get_customer_info;
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Function to get the Maximum amount of fare of any Car from Payment Table
+
+set serveroutput on
+
+create or replace function car_payment_amount return number is
+max_quantity payment.amount%type;
+begin
+select max(amount) into max_quantity from payment;
+return max_quantity;
+end car_payment_amount;
+/
+
+
+
+begin
+	dbms_output.put_line('Max Car Amount: ' || car_payment_amount);
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+-- PL/SQL Procedure which takes User Input & make Decision about CAR Status
+
+
+set serveroutput on
+declare
+pl_price car.price%type;
+
+pl_car_id car.car_id%type := &CAR_Id;
+
+begin
+
+select  price into pl_price from car
+where car_id = pl_car_id;
+
+dbms_output.put_line ('Car_id: ' || pl_car_id);
+
+
+if pl_price = 7000 then
+	dbms_output.put_line ('The Car is GOOD');
+elsif pl_price  =5000  then
+	dbms_output.put_line ('The Car is MEDIUM');
+elsif pl_price  =10000  then
+	dbms_output.put_line ('The Car is PREMIUM');
+elsif pl_price  =2000  then
+	dbms_output.put_line ('The Car is LOW');
+end if;
+
+exception
+when others then
+	dbms_output.put_line (sqlerrm);
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- View (create, update, delete, drop)
+
+create view customer_view as
+select cust_id, cust_name from customer;
+
+select * from customer_view ;
+
+update customer_view  set cust_name = 'ASIF' where cust_id = 8;
+select * from customer_view ;
+
+delete from customer_view  where cust_id = 8;
+select * from customer_view ;
+   
+drop view customer_view ;
+
+insert into customer(cust_id, cust_name) values (10, 'Farhan');
+select * from customer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Trigger to check the Validity of Price of a car to hire that during booking
+
+set serveroutput on
+
+create or replace trigger check_price before insert or update on car
+for each row
+
+declare
+min_price number := 2000;
+max_price number := 10000;
+
+begin
+
+if :new.price > max_price then
+	raise_application_error(-20000,'Price is too Large for any car to hire');
+elsif :new.price < min_price then
+	raise_application_error(-20001,'Price is too Small for any Car to hire');
+else dbms_output.put_line('New Row Inserted Successfully in Car Table');
+end if;
+
+end;
+/
+
+insert into car(car_id,price) values(9,5000);
+insert into car(car_id,price) values(10,12000);
+insert into car(car_id,price) values(11,1000);
+select * from car;
+delete from car where car_id = 7;
+select * from car;
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Trigger to Auto Increment the Distributor_id in Distributors Table
+
+set serveroutput on
+
+create or replace trigger auto_inc before insert or update on customer
+for each row
+
+declare
+current_id int;
+
+begin
+select max(cust_id) into current_id from customer;
+:new.cust_id := current_id + 1;
+dbms_output.put_line('New Row Inserted Successfully in Customer Table');
+
+end;
+/
+
+insert into customer(cust_id, cust_name, cust_phone_number) values (null, 'sakib', '+01352653626');
+insert into customer(cust_id, cust_name, cust_phone_number) values (13, 'siam', '+01352683626');
+insert into customer(cust_id, cust_name, cust_phone_number) values (66, 'sayem', '+01352353626');
+select * from customer;
+delete from customer where cust_id > 10;
+select * from customer;
