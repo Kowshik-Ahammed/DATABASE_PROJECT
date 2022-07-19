@@ -21,7 +21,7 @@ create table driver (
 
  create table payment(
     pay_id integer primary key,
-   payment_date VARCHAR2(30),
+   payment_date date,
    amount integer,
    cust_id integer,
    foreign key(cust_id) references customer(cust_id) ON DELETE CASCADE
@@ -78,15 +78,15 @@ insert into driver(driver_id,d_name,d_phone_number) values (11,'Rashed','+880150
 
 --inserting values for the payment table
 
-insert into payment (pay_id,payment_date,amount,cust_id) values (1,'1/6/22',10000,2);
-insert into payment (pay_id,payment_date,amount,cust_id) values (2,'2/8/22',7000,1);
-insert into payment (pay_id,payment_date,amount,cust_id) values (3,'3/5/22',5000,8);
-insert into payment (pay_id,payment_date,amount,cust_id) values (5,'26/3/22',2000,3);
-insert into payment (pay_id,payment_date,amount,cust_id) values (6,'26/3/22',5000,6);
-insert into payment (pay_id,payment_date,amount,cust_id) values (7,'26/3/22',10000,3);
-insert into payment (pay_id,payment_date,amount,cust_id) values (8,'26/3/22',7000,9);
-insert into payment (pay_id,payment_date,amount,cust_id) values (4,'26/3/22',2000,8);
-insert into payment (pay_id,payment_date,amount,cust_id) values (9,'26/3/22',2000,8);
+insert into payment (pay_id,payment_date,amount,cust_id) values (1,'1-MAR-2022',10000,2);
+insert into payment (pay_id,payment_date,amount,cust_id) values (2,'3-MAR-2022',7000,1);
+insert into payment (pay_id,payment_date,amount,cust_id) values (3,'7-MAR-2022',5000,8);
+insert into payment (pay_id,payment_date,amount,cust_id) values (5,'17-MAR-2022',2000,3);
+insert into payment (pay_id,payment_date,amount,cust_id) values (6,'14-MAR-2022',5000,6);
+insert into payment (pay_id,payment_date,amount,cust_id) values (7,'23-MAR-2022',10000,3);
+insert into payment (pay_id,payment_date,amount,cust_id) values (8,'14-MAR-2022',7000,9);
+insert into payment (pay_id,payment_date,amount,cust_id) values (4,'27-MAR-2022',2000,8);
+insert into payment (pay_id,payment_date,amount,cust_id) values (9,'11-MAR-2022',2000,8);
 
 --inserting values for the car table
 
@@ -551,6 +551,8 @@ select * from customer;
 
 
 
+
+
 -- Trigger to check the Validity of Price of a car to hire that during booking
 
 set serveroutput on
@@ -593,6 +595,8 @@ select * from car;
 
 
 
+
+
 -- Trigger to Auto Increment the Distributor_id in Distributors Table
 
 set serveroutput on
@@ -617,3 +621,75 @@ insert into customer(cust_id, cust_name, cust_phone_number) values (66, 'sayem',
 select * from customer;
 delete from customer where cust_id > 10;
 select * from customer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- TRANSACTION MANAGEMENT FOR CUSTOMER
+savepoint sp1;
+delete from customer;
+select * from customer;
+
+rollback to sp1;
+select * from customer;
+commit;
+
+
+
+savepoint sp2;
+insert into customer(cust_id,cust_name,address,cust_phone_number)values (10,'Sihab','Shibbari','+8801704252963');
+savepoint sp3;
+insert into customer(cust_id,cust_name,address,cust_phone_number)values (11,'Tudu','Rahul','+8801744252763');
+select * from customer;
+
+rollback to sp3;
+select * from customer;
+rollback to sp2;
+select * from customer;
+
+
+
+
+
+
+
+
+
+-- DATE FUNCTIONALITY
+
+select sysdate from dual;
+select current_date from dual;
+select systimestamp from dual;
+
+
+select  payment_date, amount from payment where pay_id =4;
+select add_months (payment_date, 3) as three_months_extension from payment where pay_id = 2;
+select add_months (payment_date, -3) as three_months_Reduction from payment where pay_id = 2;
+
+
+select least (to_date('1-JUL-2022'), to_date('1-DEC-2022')) from dual;
+select greatest (to_date('1-JUL-2022'), to_date('27-DEC-2022')) from dual;
+
+
+select last_day(payment_date) from payment where pay_id<= 5;
+
+select amount, extract(day from payment_date) as Day from payment where pay_id <= 5;
+select amount, extract(month from payment_date) as Month from payment where pay_id <= 5;
+select amount, extract(year from payment_date) as Year from payment where pay_id <= 5;
+
+
+
+
+
+---END OF DATA BASE
